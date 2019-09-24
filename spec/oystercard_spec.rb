@@ -3,6 +3,9 @@
 require 'oystercard'
 
 describe Oystercard do
+  let(:maximum_balance) { Oystercard::MAXIMUM_BALANCE }
+  let(:minimum_balance) { Oystercard::MINIMUM_BALANCE }
+
   it 'has a balance of zero' do
     expect(subject.balance).to eq(0)
   end
@@ -21,16 +24,26 @@ describe Oystercard do
       expect(card).to be_in_journey
     end
 
-  it 'raises message when balance is below 1' do
+  it 'raises message when balance is below minimum fare' do
       message = "Insufficient funds to travel"
       expect { subject.touch_in }.to raise_error message
     end
   end
 
-  it 'can touch out' do
-    card = Oystercard.new
-    card.touch_out
-    expect(card).not_to be_in_journey
+  describe '#touch_out' do
+    it 'can touch out' do
+      card = Oystercard.new
+      card.touch_out
+      expect(card).not_to be_in_journey
+    end
+
+    it 'deducts minimum balance when touching out' do
+      subject.top_up(10)
+      subject.touch_in
+      expect { subject.touch_out }.to change { subject.balance }.by -minimum_balance
+    end
+
+
   end
 
   describe '#top_up' do
@@ -41,17 +54,8 @@ describe Oystercard do
     end
 
     it 'raise an error if maximum balance is exceeded' do
-      maximum_balance = Oystercard::MAXIMUM_BALANCE
       subject.top_up(maximum_balance)
-      expect { subject.top_up 1 }.to raise_error 'Maximum balance of £90 exceeded'
-    end
-  end
-
-  describe '#deduct' do
-    it { is_expected.to respond_to(:deduct).with(1).argument }
-
-    it 'can deduct money from the balance' do
-      expect { subject.deduct 1 }.to change { subject.balance }.by (-1)
+      expect { subject.top_up 1 }.to raise_error "Maximum balance of #{maximum_balance} exceeded"
     end
   end
 end
