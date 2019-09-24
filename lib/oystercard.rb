@@ -25,7 +25,13 @@ class Oystercard
   end
 
   def touch_in
-    @in_journey = true
+   raise "Insufficient funds to travel" if insufficient_funds?
+
+   @in_journey = true
+  end
+
+  def insufficient_funds?
+    @balance < 1
   end
 
   def touch_out

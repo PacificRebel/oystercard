@@ -11,10 +11,20 @@ describe Oystercard do
     expect(subject).not_to be_in_journey
   end
 
-  it 'can touch in' do
-    card = Oystercard.new
-    card.touch_in
-    expect(card).to be_in_journey
+  describe '#touch_in' do
+    it { is_expected.to respond_to(:touch_in) }
+
+    it 'can touch in' do
+      card = Oystercard.new
+      card.top_up(10)
+      card.touch_in
+      expect(card).to be_in_journey
+    end
+
+  it 'raises message when balance is below 1' do
+      message = "Insufficient funds to travel"
+      expect { subject.touch_in }.to raise_error message
+    end
   end
 
   it 'can touch out' do
