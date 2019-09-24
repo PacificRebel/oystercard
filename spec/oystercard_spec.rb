@@ -10,7 +10,7 @@ end
     it { is_expected.to respond_to(:top_up).with(1).argument }
 
     it 'can top up the balance' do
-      expect{ subject.top_up }.to change{ subject.balance }.by 1 
+      expect{ subject.top_up }.to change{ subject.balance }.by 1
     end
 end
 
